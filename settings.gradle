@@ -1,0 +1,16 @@
+rootProject.name = 'blogging-platform'
+
+include( 'common:common-core',
+'common:common-web',
+'common:common-events',
+'api-gateway',
+'auth-service',
+'user-service',
+'post-service',
+'comment-service',
+'engagement-service',
+'subscription-service',
+'notification-service',
+'search-service',
+'analytics-service',
+'config-service')

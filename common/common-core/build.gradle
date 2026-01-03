@@ -1,0 +1,14 @@
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-logging'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+    implementation 'com.fasterxml.jackson.core:jackson-databind'
+    
+    // Observability
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+    implementation 'io.opentelemetry.javaagent:opentelemetry-javaagent:1.32.0' // Agent or libs? Usually starters for tracing.
+    // Better to use micrometer-tracing-bridge-otel
+    implementation 'io.micrometer:micrometer-tracing-bridge-otel'
+    implementation 'io.opentelemetry:opentelemetry-exporter-zipkin' // or otlp
+}

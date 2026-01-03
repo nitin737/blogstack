@@ -1,0 +1,13 @@
+server:
+  port: 8081
+
+spring:
+  application:
+    name: post-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/blogging_post
+    username: postgres
+    password: password
+  jpa:
+    hibernate:
+      ddl-auto: update
