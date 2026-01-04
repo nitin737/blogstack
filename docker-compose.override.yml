@@ -1,0 +1,82 @@
+# This file is automatically merged with docker-compose.yml for local development
+# Use it for development-specific overrides like volume mounts for hot reload
+
+services:
+  auth-service:
+    volumes:
+      # Uncomment for hot reload during development
+      # - ./auth-service/src:/app/src
+      - ./auth-service/logs:/app/logs
+    environment:
+      - SPRING_DEVTOOLS_RESTART_ENABLED=true
+      - LOGGING_LEVEL_ROOT=DEBUG
+
+  # user-service:
+  #   volumes:
+  #     - ./user-service/logs:/app/logs
+  #   environment:
+  #     - SPRING_DEVTOOLS_RESTART_ENABLED=true
+  #     - LOGGING_LEVEL_ROOT=DEBUG
+
+  # post-service:
+  #   volumes:
+  #     - ./post-service/logs:/app/logs
+  #   environment:
+  #     - SPRING_DEVTOOLS_RESTART_ENABLED=true
+  #     - LOGGING_LEVEL_ROOT=DEBUG
+
+  # comment-service:
+  #   volumes:
+  #     - ./comment-service/logs:/app/logs
+  #   environment:
+  #     - SPRING_DEVTOOLS_RESTART_ENABLED=true
+  #     - LOGGING_LEVEL_ROOT=DEBUG
+
+  # engagement-service:
+  #   volumes:
+  #     - ./engagement-service/logs:/app/logs
+  #   environment:
+  #     - SPRING_DEVTOOLS_RESTART_ENABLED=true
+  #     - LOGGING_LEVEL_ROOT=DEBUG
+
+  # subscription-service:
+  #   volumes:
+  #     - ./subscription-service/logs:/app/logs
+  #   environment:
+  #     - SPRING_DEVTOOLS_RESTART_ENABLED=true
+  #     - LOGGING_LEVEL_ROOT=DEBUG
+
+  # notification-service:
+  #   volumes:
+  #     - ./notification-service/logs:/app/logs
+  #   environment:
+  #     - SPRING_DEVTOOLS_RESTART_ENABLED=true
+  #     - LOGGING_LEVEL_ROOT=DEBUG
+
+  # search-service:
+  #   volumes:
+  #     - ./search-service/logs:/app/logs
+  #   environment:
+  #     - SPRING_DEVTOOLS_RESTART_ENABLED=true
+  #     - LOGGING_LEVEL_ROOT=DEBUG
+
+  # analytics-service:
+  #   volumes:
+  #     - ./analytics-service/logs:/app/logs
+  #   environment:
+  #     - SPRING_DEVTOOLS_RESTART_ENABLED=true
+  #     - LOGGING_LEVEL_ROOT=DEBUG
+
+  # api-gateway:
+  #   volumes:
+  #     - ./api-gateway/logs:/app/logs
+  #   environment:
+  #     - SPRING_DEVTOOLS_RESTART_ENABLED=true
+  #     - LOGGING_LEVEL_ROOT=DEBUG
+
+  # config-service:
+  #   volumes:
+  #     - ./config-service/logs:/app/logs
+  #   environment:
+  #     - SPRING_DEVTOOLS_RESTART_ENABLED=true
+  #     - LOGGING_LEVEL_ROOT=DEBUG

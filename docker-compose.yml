@@ -1,0 +1,343 @@
+services:
+  # ============================================
+  # DATABASES
+  # ============================================
+  
+  postgres:
+    image: postgres:16-alpine
+    container_name: blogging-postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/init-databases.sh:/docker-entrypoint-initdb.d/init-databases.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - blogstack-network
+
+  # ============================================
+  # INFRASTRUCTURE SERVICES
+  # ============================================
+
+  # config-service:
+  #   build:
+  #     context: .
+  #     dockerfile: config-service/Dockerfile
+  #   container_name: blogging-config-service
+  #   ports:
+  #     - "8888:8888"
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=docker
+  #   healthcheck:
+  #     test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8888/actuator/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 40s
+  #   networks:
+  #     - blogstack-network
+
+  # ============================================
+  # CORE SERVICES
+  # ============================================
+
+  auth-service:
+    build:
+      context: .
+      dockerfile: auth-service/Dockerfile
+    container_name: blogging-auth-service
+    ports:
+      - "8081:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/blogging_auth
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      # - CONFIG_SERVER_URL=http://config-service:8888
+    depends_on:
+      postgres:
+        condition: service_healthy
+    # config-service:
+    #   condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - blogstack-network
+
+  # user-service:
+  #   build:
+  #     context: ./user-service
+  #     dockerfile: Dockerfile
+  #   container_name: blogging-user-service
+  #   ports:
+  #     - "8082:8080"
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=docker
+  #     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/blogging_user
+  #     - SPRING_DATASOURCE_USERNAME=postgres
+  #     - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+  #     - CONFIG_SERVER_URL=http://config-service:8888
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     config-service:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 60s
+  #   networks:
+  #     - blogstack-network
+
+  # post-service:
+  #   build:
+  #     context: ./post-service
+  #     dockerfile: Dockerfile
+  #   container_name: blogging-post-service
+  #   ports:
+  #     - "8083:8080"
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=docker
+  #     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/blogging_post
+  #     - SPRING_DATASOURCE_USERNAME=postgres
+  #     - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+  #     - CONFIG_SERVER_URL=http://config-service:8888
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     config-service:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 60s
+  #   networks:
+  #     - blogstack-network
+
+  # comment-service:
+  #   build:
+  #     context: ./comment-service
+  #     dockerfile: Dockerfile
+  #   container_name: blogging-comment-service
+  #   ports:
+  #     - "8084:8080"
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=docker
+  #     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/blogging_comment
+  #     - SPRING_DATASOURCE_USERNAME=postgres
+  #     - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+  #     - CONFIG_SERVER_URL=http://config-service:8888
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     config-service:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 60s
+  #   networks:
+  #     - blogstack-network
+
+  # engagement-service:
+  #   build:
+  #     context: ./engagement-service
+  #     dockerfile: Dockerfile
+  #   container_name: blogging-engagement-service
+  #   ports:
+  #     - "8085:8080"
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=docker
+  #     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/blogging_engagement
+  #     - SPRING_DATASOURCE_USERNAME=postgres
+  #     - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+  #     - CONFIG_SERVER_URL=http://config-service:8888
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     config-service:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 60s
+  #   networks:
+  #     - blogstack-network
+
+  # subscription-service:
+  #   build:
+  #     context: ./subscription-service
+  #     dockerfile: Dockerfile
+  #   container_name: blogging-subscription-service
+  #   ports:
+  #     - "8086:8080"
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=docker
+  #     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/blogging_subscription
+  #     - SPRING_DATASOURCE_USERNAME=postgres
+  #     - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+  #     - CONFIG_SERVER_URL=http://config-service:8888
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     config-service:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 60s
+  #   networks:
+  #     - blogstack-network
+
+  # notification-service:
+  #   build:
+  #     context: ./notification-service
+  #     dockerfile: Dockerfile
+  #   container_name: blogging-notification-service
+  #   ports:
+  #     - "8087:8080"
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=docker
+  #     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/blogging_notification
+  #     - SPRING_DATASOURCE_USERNAME=postgres
+  #     - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+  #     - CONFIG_SERVER_URL=http://config-service:8888
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     config-service:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 60s
+  #   networks:
+  #     - blogstack-network
+
+  # search-service:
+  #   build:
+  #     context: ./search-service
+  #     dockerfile: Dockerfile
+  #   container_name: blogging-search-service
+  #   ports:
+  #     - "8088:8080"
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=docker
+  #     - CONFIG_SERVER_URL=http://config-service:8888
+  #   depends_on:
+  #     config-service:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 60s
+  #   networks:
+  #     - blogstack-network
+
+  # analytics-service:
+  #   build:
+  #     context: ./analytics-service
+  #     dockerfile: Dockerfile
+  #   container_name: blogging-analytics-service
+  #   ports:
+  #     - "8089:8080"
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=docker
+  #     - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/blogging_analytics
+  #     - SPRING_DATASOURCE_USERNAME=postgres
+  #     - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+  #     - CONFIG_SERVER_URL=http://config-service:8888
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     config-service:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 60s
+  #   networks:
+  #     - blogstack-network
+
+  # api-gateway:
+  #   build:
+  #     context: ./api-gateway
+  #     dockerfile: Dockerfile
+  #   container_name: blogging-api-gateway
+  #   ports:
+  #     - "8080:8080"
+  #   environment:
+  #     - SPRING_PROFILES_ACTIVE=docker
+  #     - CONFIG_SERVER_URL=http://config-service:8888
+  #   depends_on:
+  #     config-service:
+  #       condition: service_healthy
+  #     auth-service:
+  #       condition: service_healthy
+  #     user-service:
+  #       condition: service_healthy
+  #     post-service:
+  #       condition: service_healthy
+  #     comment-service:
+  #       condition: service_healthy
+  #     engagement-service:
+  #       condition: service_healthy
+  #     subscription-service:
+  #       condition: service_healthy
+  #     notification-service:
+  #       condition: service_healthy
+  #     search-service:
+  #       condition: service_healthy
+  #     analytics-service:
+  #       condition: service_healthy
+  #   healthcheck:
+  #     test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/actuator/health"]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 60s
+  #   networks:
+  #     - blogstack-network
+
+# ============================================
+# NETWORKS
+# ============================================
+networks:
+  blogstack-network:
+    driver: bridge
+
+# ============================================
+# VOLUMES
+# ============================================
+volumes:
+  postgres_data:
+    driver: local

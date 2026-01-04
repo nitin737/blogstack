@@ -59,3 +59,22 @@ nbdist/
 
 # Spring Boot
 HELP.md
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+*.env
+!.env.example
+!.env.docker
+application-local.yml
+
+# Docker
+docker-compose.override.yml.backup
+*.log
+logs/
+
+# Database backups
+*.sql
+!**/migrations/**/*.sql
+!**/db/migration/**/*.sql
