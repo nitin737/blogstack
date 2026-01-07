@@ -13,8 +13,8 @@ dependencies {
     implementation project(':common:common-web')
     
     // Flyway Database Migration
-    implementation 'org.flywaydb:flyway-core'
-    runtimeOnly 'org.flywaydb:flyway-database-postgresql'
+    implementation 'org.flywaydb:flyway-core:10.4.1'
+    runtimeOnly 'org.flywaydb:flyway-database-postgresql:10.4.1'
     
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'

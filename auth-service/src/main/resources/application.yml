@@ -4,12 +4,20 @@ spring:
   application:
     name: auth-service
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${DATASOURCE_URL}
+    username: ${DATASOURCE_USERNAME}
+    password: ${DATASOURCE_PASSWORD}
   jpa:
+    open-in-view: false
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
   security:
     oauth2:
       client:
@@ -30,5 +38,5 @@ spring:
 blogging:
   security:
     jwt:
-      secret-key: ${JWT_SECRET_KEY}
-      expiration: 86400000
+      secret-key: ${JWT_SECRET}
+      expiration: ${JWT_EXPIRATION}
